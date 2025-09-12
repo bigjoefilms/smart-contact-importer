@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { analyzeDataPattern, getSuggestedFieldType } from '../../../lib/data-patterns';
+import { analyzeDataPattern} from '../../../lib/data-patterns';
 import { CORE_FIELDS, FIELD_LABELS } from '../../../lib/firebase-service';
 
 const openai = new OpenAI({ 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Analyze data patterns for each header
-    const patternAnalysis: Record<string, any> = {};
+    const patternAnalysis: Record<string, { isEmail: boolean; isPhone: boolean; isDate: boolean; isNumber: boolean; confidence: number }> = {};
     headers.forEach(header => {
       if (sampleData[header]) {
         patternAnalysis[header] = analyzeDataPattern(sampleData[header]);

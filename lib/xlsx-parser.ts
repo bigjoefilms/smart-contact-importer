@@ -46,6 +46,7 @@ export function parseXLSX(file: File): Promise<ParsedData> {
           try {
             workbook = XLSX.read(data, { type: 'binary' });
           } catch (xlsxError) {
+            console.error('XLSX parsing error:', xlsxError);
             reject(new Error('Failed to parse XLSX file. Please ensure it\'s a valid Excel file.'));
             return;
           }
@@ -69,7 +70,7 @@ export function parseXLSX(file: File): Promise<ParsedData> {
           // First row as headers
           const headers = jsonData[0] as string[];
           const rows = jsonData.slice(1).map((row: unknown) => {
-            const rowArray = row as any[];
+            const rowArray = row as (string | number | boolean | null)[];
             const rowData: Record<string, string> = {};
             headers.forEach((header, index) => {
               rowData[header] = String(rowArray[index] || '');

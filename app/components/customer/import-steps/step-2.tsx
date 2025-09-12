@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ParsedData } from "@/lib/xlsx-parser";
 import { AIMappingResult } from "@/lib/ai-mapping";
-import { CORE_FIELDS, CUSTOM_FIELDS } from "@/lib/firebase-service";
+import { CORE_FIELDS} from "@/lib/firebase-service";
 
 interface Step2Props {
   parsedData?: ParsedData;
@@ -11,7 +11,7 @@ interface Step2Props {
 export default function Step2({ parsedData, aiMapping }: Step2Props) {
   // Calculate statistics
   const totalFields = parsedData?.headers?.length || 0;
-  const coreFields = aiMapping ? Object.values(aiMapping).filter(field => CORE_FIELDS.includes(field)).length : 0;
+  // const coreFields = aiMapping ? Object.values(aiMapping).filter(field => CORE_FIELDS.includes(field)).length : 0; // Removed unused variable
   const customFields = aiMapping ? Object.values(aiMapping).filter(field => field === 'custom' || !CORE_FIELDS.includes(field)).length : 0;
   const highConfidenceFields = totalFields; // For now, assume all are high confidence
   return (

@@ -77,7 +77,7 @@ export default function Step3({ parsedData, aiMapping }: Step3Props) {
         Smart Field Mapping
       </h2>
       <p className="text-[#68818C] text-[17px] pt-[12px] max-w-[904px] w-full">
-        Review and adjust the AI-powered field mappings below. Click "Edit" next
+        Review and adjust the AI-powered field mappings below. Click &quot;Edit&quot; next
         to any mapping to change it. You can map to existing CRM fields or
         create custom fields with different data types.
       </p>
@@ -102,7 +102,7 @@ export default function Step3({ parsedData, aiMapping }: Step3Props) {
         </span>
       </div>
       
-      <div className="space-y-4 h-[483px] overflow-y-scroll pb-[50px]">
+      <div className="space-y-4 md:h-[483px] overflow-y-scroll md:pb-[50px] pb-[70px]">
         {Object.entries(currentMapping).map(([header, mappedField]) => {
           const sampleValues = parsedData.rows?.slice(0, 3).map(row => row[header]).filter(Boolean) || [];
           const isCore = isCoreField(mappedField);
@@ -112,7 +112,7 @@ export default function Step3({ parsedData, aiMapping }: Step3Props) {
             <div key={header} className="flex border-[#EEEEEE] bg-[#FDFDFD] border py-[20px] px-[24px] pr-[42px] rounded-[16px] gap-[32px] justify-between">
               <div className="flex items-start gap-[32px] md:flex-row flex-col">
                 <div className="gap-[12px] flex flex-col">
-                  <div className="flex items-center gap-[8px]">
+                  <div className="flex items-center gap-[8px]  ">
                     <span className="text-[#920C7A] bg-[#FBEBFF] border border-[#FFB7F4] rounded-[8px] text-[8px] md:text-[12px] font-medium py-[4px] px-[8px]">
                       DATABASE FIELD
                     </span>
@@ -127,10 +127,10 @@ export default function Step3({ parsedData, aiMapping }: Step3Props) {
                     <h1>{displayField}</h1>
                     </div>
 
-                    <div className="text-[11px] md:text-[12px] text-[#596A72] flex items-center gap-[8px] cursor-pointer flex-wrap">
-                      <div className="gap-[8px] flex items-center flex-wrap">
+                    <div className="text-[11px] md:text-[12px] text-[#596A72] flex items-center gap-[8px] cursor-pointer flex-wrap overflow-x-scroll w-[360px] ">
+                      <div className="gap-[8px] flex md:items-center flex-wrap md:flex-row flex-col items-start ">
                         {sampleValues.map((value, index) => (
-                          <span key={index} className="bg-[#F4F5F6] px-[8px] py-[4px] rounded-[4px]">
+                          <span key={index} className="bg-[#F4F5F6] px-[8px] py-[4px] rounded-[4px] ">
                             {value}
                           </span>
                         ))}
@@ -234,7 +234,7 @@ export default function Step3({ parsedData, aiMapping }: Step3Props) {
                                 height={16}
                                 className="opacity-50"
                               />
-                              Don't import this field
+                              Don&apos;t import this field
                             </p>
                             <p 
                               className="flex items-center gap-[8px] cursor-pointer hover:bg-gray-50 p-2 rounded"

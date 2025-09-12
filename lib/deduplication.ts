@@ -38,17 +38,17 @@ export function deduplicateContacts(
     const phone = contact.phone?.replace(/\D/g, '');
     
     let existingContact: Contact | null = null;
-    let matchType = '';
+    // let matchType = ''; // Removed unused variable
     
     // Check for email match first
     if (email && existingByEmail.has(email)) {
       existingContact = existingByEmail.get(email)!;
-      matchType = 'email';
+      // matchType = 'email'; // Removed unused assignment
     }
     // Check for phone match if no email match
     else if (phone && existingByPhone.has(phone)) {
       existingContact = existingByPhone.get(phone)!;
-      matchType = 'phone';
+      // matchType = 'phone'; // Removed unused assignment
     }
     
     if (existingContact) {
@@ -108,6 +108,7 @@ export function validateAgentEmails(
         valid.push(contact);
       } else {
         // Remove invalid agentUid
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { agentUid, ...contactWithoutAgent } = contact;
         invalid.push(contactWithoutAgent);
       }

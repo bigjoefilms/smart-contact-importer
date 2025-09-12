@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/utilis/firebase';
-import { collection, getDocs, query, orderBy, limit, addDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit, doc, setDoc } from 'firebase/firestore';
 
 export async function GET(request: NextRequest) {
   try {
@@ -67,9 +67,9 @@ export async function POST(request: NextRequest) {
           ...contact
         });
         
-        console.log(`✅ Saved contact: ${contact.firstName} ${contact.lastName} with ID: ${contactRef.id}`);
+        console.log(` Saved contact: ${contact.firstName} ${contact.lastName} with ID: ${contactRef.id}`);
       } catch (contactError) {
-        console.error(`❌ Failed to save contact ${contact.firstName} ${contact.lastName}:`, contactError);
+        console.error(`Failed to save contact ${contact.firstName} ${contact.lastName}:`, contactError);
         console.error('Contact data that failed:', contact);
         // Continue with other contacts even if one fails
       }
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('❌ Error saving contacts:', error);
+    console.error(' Error saving contacts:', error);
     return NextResponse.json({ 
       error: 'Failed to save contacts',
       details: error instanceof Error ? error.message : 'Unknown error'
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Test function to verify database connection
-export async function PUT(request: NextRequest) {
+export async function PUT() {
   try {
     console.log('🧪 Testing database connection...');
     
@@ -123,7 +123,7 @@ export async function PUT(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('❌ Database connection test failed:', error);
+    console.error('Database connection test failed:', error);
     return NextResponse.json({ 
       error: 'Database connection test failed',
       details: error instanceof Error ? error.message : 'Unknown error'

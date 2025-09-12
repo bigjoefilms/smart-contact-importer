@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 type AnimatedProgressBarProps = {
   autoStart?: boolean;
@@ -8,9 +8,9 @@ type AnimatedProgressBarProps = {
 
 export default function AnimatedProgressBar({ autoStart = true, durationMs = 3000, onComplete }: AnimatedProgressBarProps) {
   const [progress, setProgress] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [, setIsAnimating] = useState<boolean>(false);
 
-  const startAnimation = () => {
+  const startAnimation = useCallback(() => {
     setProgress(0);
     setIsAnimating(true);
     
@@ -31,17 +31,12 @@ export default function AnimatedProgressBar({ autoStart = true, durationMs = 300
       }
       setProgress(currentProgress);
     }, stepTime);
-  };
-
-  const resetProgress = () => {
-    setProgress(0);
-    setIsAnimating(false);
-  };
+  }, [durationMs, onComplete]);
 
   // Auto-start animation on component mount
   useEffect(() => {
     if (autoStart) startAnimation();
-  }, [autoStart, durationMs]);
+  }, [autoStart, startAnimation]);
 
   return (
     <div className="flex flex-col items-center justify-center mt-[24px]  bg-[#EEF4FF] h-[22px] rounded-[100px] max-w-[294px] w-full px-[8px] py-[7px

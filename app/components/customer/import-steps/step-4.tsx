@@ -1,4 +1,4 @@
-import Image from "next/image";
+
 import { DeduplicationResult } from "@/lib/deduplication";
 
 interface Step4Props {

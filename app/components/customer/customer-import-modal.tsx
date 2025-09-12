@@ -19,14 +19,17 @@ interface MappedContact {
   email?: string;
   agentUid?: string;
   createdOn?: Date;
-  [key: string]: any; // For custom fields
+  [key: string]: string | Date | undefined; // For custom fields
 }
 
-interface CustomerImportModalProps {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface CustomerImportModalProps {
+  // No props needed for this component
+}
 
 const CustomerImportModal: React.FC<CustomerImportModalProps> = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [isFinalProcessing, setIsFinalProcessing] = useState(false);
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [aiMapping, setAiMapping] = useState<AIMappingResult | null>(null);

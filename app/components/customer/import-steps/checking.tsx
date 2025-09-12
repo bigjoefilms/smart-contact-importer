@@ -41,7 +41,7 @@ export default function Checking({ parsedData, aiMapping, onComplete }: Checking
         // Perform actual duplicate detection
         // Convert parsed data to contact format for deduplication
         const contacts = parsedData.rows.map(row => {
-          const contact: any = {};
+          const contact: Record<string, string> = {};
           Object.entries(aiMapping).forEach(([header, fieldName]) => {
             if (fieldName !== 'custom' && fieldName !== 'skip') {
               contact[fieldName] = row[header];
@@ -51,7 +51,7 @@ export default function Checking({ parsedData, aiMapping, onComplete }: Checking
         });
 
         // For now, assume no existing contacts (empty array)
-        const existingContacts: any[] = [];
+        const existingContacts: Record<string, string>[] = [];
         const dedupResult = deduplicateContacts(contacts, existingContacts);
         
         const totalContacts = parsedData.rows.length;

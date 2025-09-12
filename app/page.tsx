@@ -1,7 +1,4 @@
 "use client";
-
-import Image from "next/image";
-import { useState } from "react";
 import CustomerImportModal from "./components/customer/customer-import-modal";
 
 export default function Home() {

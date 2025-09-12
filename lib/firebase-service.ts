@@ -1,6 +1,18 @@
 // Firebase service configuration and field definitions
 import { db } from '../utilis/firebase';
 
+export interface Contact {
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  email?: string;
+  agentUid?: string;
+  createdOn?: Date;
+  updatedOn?: Date;
+  [key: string]: string | Date | undefined;
+}
+
 // Core contact fields that cannot be deleted (based on Firebase structure)
 export const CORE_FIELDS = [
   'firstName',

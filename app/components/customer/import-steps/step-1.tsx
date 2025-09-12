@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import AnimatedProgressBar from "../../ui/animated-progress-bar";
 import { parseXLSX, ParsedData } from "../../../../lib/xlsx-parser";
 import { suggestMapping, AIMappingResult } from "../../../../lib/ai-mapping";
-import { CORE_FIELDS, CUSTOM_FIELDS, FIELD_TYPES } from "../../../../lib/firebase-service";
+import { CORE_FIELDS, CUSTOM_FIELDS } from "../../../../lib/firebase-service";
 
 interface MappedContact {
   firstName?: string;
@@ -12,7 +12,7 @@ interface MappedContact {
   email?: string;
   agentUid?: string;
   createdOn?: Date;
-  [key: string]: any; // For custom fields
+  [key: string]: string | Date | undefined; // For custom fields
 }
 
 interface Step1Props {
@@ -23,7 +23,7 @@ export default function Step1({ onMappingComplete }: Step1Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(false);
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string | null>(null);
 
   const handlePickFile = () => fileInputRef.current?.click();
