@@ -99,7 +99,7 @@ Open http://localhost:3000 in your browser.
 - **User Authentication**: Multi-user support with role-based access
 
 ## Deployment
-The application is ready for deployment on Vercel, Netlify, or any Next.js-compatible platform.
+[live link ](https://smart-contact-importer-76zq.vercel.app/)
 
 ## Contributing
 1. Fork the repository
