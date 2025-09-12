@@ -1,5 +1,6 @@
 {
   "name": "smart-contact-importer",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,19 +10,27 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "dotenv": "^16.6.1",
+    "firebase": "^10.14.1",
+    "install": "^0.13.0",
+    "lucide-react": "^0.543.0",
+    "next": "15.5.2",
+    "npm": "^11.6.0",
+    "openai": "^4.104.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.2"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "@types/xlsx": "^0.0.36",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
