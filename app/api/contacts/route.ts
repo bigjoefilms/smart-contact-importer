@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/utilis/firebase';
 import { collection, getDocs, query, orderBy, limit, doc, setDoc } from 'firebase/firestore';
+import { mapAgentEmailToUid } from '@/lib/firebase-service';
 
 export async function GET(request: NextRequest) {
   try {
@@ -52,11 +53,24 @@ export async function POST(request: NextRequest) {
         // Create a new document reference to get auto-generated ID
         const contactRef = doc(contactsRef);
         
+        // Map agent email to UID if agentEmail is provided
+        let agentUid = contact.agentUid;
+        if (contact.agentEmail && !agentUid) {
+          agentUid = await mapAgentEmailToUid(contact.agentEmail);
+          if (!agentUid) {
+            console.warn(`No user found for agent email: ${contact.agentEmail}`);
+          }
+        }
+        
         const contactData = {
           ...contact,
+          agentUid: agentUid || contact.agentUid,
           createdOn: contact.createdOn ? new Date(contact.createdOn) : new Date(),
           id: contactRef.id
         };
+        
+        // Remove agentEmail from final data as it's not needed in the contact record
+        delete contactData.agentEmail;
         
         console.log(`Saving contact:`, contactData);
         
@@ -64,10 +78,10 @@ export async function POST(request: NextRequest) {
         
         savedContacts.push({
           id: contactRef.id,
-          ...contact
+          ...contactData
         });
         
-        console.log(` Saved contact: ${contact.firstName} ${contact.lastName} with ID: ${contactRef.id}`);
+        console.log(` Saved contact: ${contact.firstName} ${contact.lastName} with ID: ${contactRef.id}${agentUid ? ` (assigned to agent: ${agentUid})` : ''}`);
       } catch (contactError) {
         console.error(`Failed to save contact ${contact.firstName} ${contact.lastName}:`, contactError);
         console.error('Contact data that failed:', contact);

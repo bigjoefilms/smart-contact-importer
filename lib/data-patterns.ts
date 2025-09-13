@@ -74,7 +74,13 @@ export function getSuggestedFieldType(header: string, patternAnalysis: PatternAn
     return 'lastName';
   }
   if (headerLower.includes('agent') && headerLower.includes('email')) {
-    return 'agentUid';
+    return 'agentEmail';
+  }
+  if (headerLower.includes('assigned') && headerLower.includes('agent')) {
+    return 'agentEmail';
+  }
+  if (headerLower.includes('agent') && patternAnalysis.isEmail) {
+    return 'agentEmail';
   }
   if (headerLower.includes('created') || headerLower.includes('date')) {
     return 'createdOn';
