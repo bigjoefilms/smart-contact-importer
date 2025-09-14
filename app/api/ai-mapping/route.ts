@@ -84,7 +84,11 @@ Make sure the JSON is valid and properly formatted.`;
     const mapping = JSON.parse(content);
     console.log('Parsed mapping:', mapping);
 
-    return NextResponse.json({ mapping });
+    // Return both mapping and confidence scores
+    return NextResponse.json({ 
+      mapping,
+      confidence: patternAnalysis
+    });
   } catch (error) {
     console.error("AI mapping error:", error);
     
@@ -113,6 +117,15 @@ Make sure the JSON is valid and properly formatted.`;
       });
     }
     
-    return NextResponse.json({ mapping: fallback });
+    // For fallback, create basic confidence scores
+    const fallbackConfidence: Record<string, { isEmail: boolean; isPhone: boolean; isDate: boolean; isNumber: boolean; confidence: number }> = {};
+    headers.forEach(header => {
+      fallbackConfidence[header] = { isEmail: false, isPhone: false, isDate: false, isNumber: false, confidence: 0.3 }; // Low confidence for fallback
+    });
+    
+    return NextResponse.json({ 
+      mapping: fallback,
+      confidence: fallbackConfidence
+    });
   }
 }

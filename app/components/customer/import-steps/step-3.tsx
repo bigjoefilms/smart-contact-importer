@@ -8,9 +8,10 @@ import { CORE_FIELDS, CUSTOM_FIELDS, FIELD_LABELS } from "@/lib/firebase-service
 interface Step3Props {
   parsedData?: ParsedData;
   aiMapping?: AIMappingResult;
+  confidenceData?: Record<string, { isEmail: boolean; isPhone: boolean; isDate: boolean; isNumber: boolean; confidence: number }>;
 }
 
-export default function Step3({ parsedData, aiMapping }: Step3Props) {
+export default function Step3({ parsedData, aiMapping, confidenceData }: Step3Props) {
   const [currentMapping, setCurrentMapping] = useState<AIMappingResult>(aiMapping || {});
   const [originalMapping, setOriginalMapping] = useState<AIMappingResult>(aiMapping || {});
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -71,6 +72,51 @@ export default function Step3({ parsedData, aiMapping }: Step3Props) {
     return 'Optional';
   };
 
+  const shouldShowWarning = (header: string, mappedField: string) => {
+    // Don't show warning for custom fields or skipped fields
+    if (mappedField === 'custom' || mappedField === 'skip') {
+      return false;
+    }
+
+    // Get the data pattern for this header
+    const confidence = confidenceData?.[header];
+    if (!confidence) {
+      return false;
+    }
+
+    // Check if the mapped field is a core field and if the data pattern matches
+    const isCore = isCoreField(mappedField);
+    if (!isCore) {
+      return false;
+    }
+
+    // Define expected patterns for each core field
+    const expectedPatterns = {
+      'email': 'isEmail',
+      'phone': 'isPhone', 
+      'createdOn': 'isDate',
+      'firstName': 'none', // Names don't have specific patterns
+      'lastName': 'none',  // Names don't have specific patterns
+      'agentUid': 'isEmail' // Agent is typically an email
+    };
+
+    const expectedPattern = expectedPatterns[mappedField as keyof typeof expectedPatterns];
+    
+    // For fields with specific expected patterns, check if data matches
+    if (expectedPattern && expectedPattern !== 'none') {
+      const dataMatchesExpectedPattern = confidence[expectedPattern as keyof typeof confidence];
+      const confidenceLevel = confidence.confidence;
+      
+      // Show warning if:
+      // 1. Data doesn't match expected pattern, OR
+      // 2. Confidence is very low (< 0.3)
+      return !dataMatchesExpectedPattern || confidenceLevel < 0.3;
+    }
+
+    // For fields without specific patterns (like names), only show warning if confidence is very low
+    return confidence.confidence < 0.3;
+  };
+
   return (
     <div className="">
       <h2 className="text-[#0E4259] text-[18px] font-semibold">
@@ -102,14 +148,15 @@ export default function Step3({ parsedData, aiMapping }: Step3Props) {
         </span>
       </div>
       
-      <div className="space-y-4 md:h-[483px] overflow-y-scroll md:pb-[50px] pb-[70px]">
+      <div className="space-y-4 md:h-[483px] overflow-y-scroll md:pb-[50px] pb-[70px] ">
         {Object.entries(currentMapping).map(([header, mappedField]) => {
           const sampleValues = parsedData.rows?.slice(0, 3).map(row => row[header]).filter(Boolean) || [];
           const isCore = isCoreField(mappedField);
           const displayField = getFieldDisplayName(mappedField);
           
           return (
-            <div key={header} className="flex border-[#EEEEEE] bg-[#FDFDFD] border py-[20px] px-[24px] pr-[42px] rounded-[16px] gap-[32px] justify-between">
+            <div key={header}>
+            <div className={`flex border-[#EEEEEE] bg-[#FDFDFD] border pt-[20px] pb-[10px] px-[24px] pr-[42px] ${shouldShowWarning(header, mappedField) ? 'rounded-t-[16px]' : 'rounded-[16px]'} gap-[32px] justify-between 3border-[#FFD3D3] flex-wrap`}>
               <div className="flex items-start gap-[32px] md:flex-row flex-col">
                 <div className="gap-[12px] flex flex-col">
                   <div className="flex items-center gap-[8px]  ">
@@ -179,7 +226,7 @@ export default function Step3({ parsedData, aiMapping }: Step3Props) {
                   )}
 
                   {editingField === header && (
-                    <div className="w-[374px] z-50 absolute mt-[37px]">
+                    <div className="w-[374px]  z-50 absolute mt-[37px]">
                       <div className="bg-white p-[12px] border border-[#EEEEEE] rounded-[8px] shadow-lg">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-[8px] text-[14px] w-full justify-between">
@@ -201,14 +248,19 @@ export default function Step3({ parsedData, aiMapping }: Step3Props) {
                             </div>
 
                             <div className="flex items-center gap-[8px]">
-                              <Image
-                                src="/icons/check.png"
-                                alt="confirm-icon"
-                                width={36}
-                                height={36}
-                                className="cursor-pointer"
-                                onClick={() => setEditingField(null)}
-                              />
+                                <div className="relative flex items-center justify-center">
+                               
+                                  <Image
+                                    src="/icons/complete.png"
+                                    alt="confirm-icon"
+                                    width={56}
+                                    height={56}
+                                    className="cursor-pointer"
+                                    onClick={() => setEditingField(null)}
+                                  />
+                                </div>
+                              
+                             
                               <Image
                                 src="/icons/close-btn.png"
                                 alt="close-icon"
@@ -340,8 +392,29 @@ export default function Step3({ parsedData, aiMapping }: Step3Props) {
                     </div>
                   )}
 
-                  {editingField !== header && (
-                    <div className="flex items-center gap-[8px] pt-[15px]">
+                 
+                </div>
+              </div>
+              {editingField !== header && (
+                   <div className="flex gap-[8px] items-start">
+                     <div className="flex items-center gap-[8px] ">
+                      <Image
+                        src="/icons/refresh.png"
+                        alt="refresh"
+                        width={16}
+                        height={16}
+                        className="cursor-pointer "
+                        onClick={() => setEditingField(header)}
+                      />
+                      <span 
+                        className="text-[#6D657E] text-[14px] cursor-pointer"
+                        onClick={() => handleResetField(header)}
+                      >
+                        Reset
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-[8px] ">
                       <Image
                         src="/icons/edit.png"
                         alt="edit"
@@ -351,15 +424,28 @@ export default function Step3({ parsedData, aiMapping }: Step3Props) {
                         onClick={() => setEditingField(header)}
                       />
                       <span 
-                        className="text-[#1970F3] text-[13px] cursor-pointer"
+                        className="text-[#6D657E] text-[14px] cursor-pointer"
                         onClick={() => handleResetField(header)}
                       >
-                        Reset
+                    Edit
                       </span>
                     </div>
+                   </div>
                   )}
-                </div>
+              
+            </div>
+            {shouldShowWarning(header, mappedField) && (
+              <div className="items-center flex justify-center text-[#D74141] text-[14px] bg-[#FFF2EF] rounded-b-[16px] gap-[8px] h-[36px]">
+                <Image
+                  src="/icons/warning-line.png"
+                  alt="warning"
+                  width={16}
+                  height={16}
+                  className="cursor-pointer"
+                />
+                Manual Review Recommended
               </div>
+            )}
             </div>
           );
         })}

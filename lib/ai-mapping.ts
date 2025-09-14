@@ -8,11 +8,16 @@ export interface AIMappingResult {
   [header: string]: string;
 }
 
+export interface AIMappingResponse {
+  mapping: AIMappingResult;
+  confidence: Record<string, { isEmail: boolean; isPhone: boolean; isDate: boolean; isNumber: boolean; confidence: number }>;
+}
+
 export interface EnhancedMappingResult {
   [header: string]: string;
 }
 
-export async function suggestMapping(headers: string[], sampleData?: Record<string, string[]>): Promise<AIMappingResult> {
+export async function suggestMapping(headers: string[], sampleData?: Record<string, string[]>): Promise<AIMappingResponse> {
   try {
     const response = await fetch('/api/ai-mapping', {
       method: 'POST',
@@ -27,7 +32,7 @@ export async function suggestMapping(headers: string[], sampleData?: Record<stri
     }
 
     const data = await response.json();
-    return data.mapping;
+    return data;
   } catch (error) {
     console.error("AI mapping error:", error);
     // Fallback: try basic pattern matching when AI fails
@@ -52,7 +57,16 @@ export async function suggestMapping(headers: string[], sampleData?: Record<stri
         fallback[header] = "custom";
       }
     });
-    return fallback;
+    // For fallback, create basic confidence scores
+    const fallbackConfidence: Record<string, { isEmail: boolean; isPhone: boolean; isDate: boolean; isNumber: boolean; confidence: number }> = {};
+    headers.forEach(header => {
+      fallbackConfidence[header] = { isEmail: false, isPhone: false, isDate: false, isNumber: false, confidence: 0.3 }; // Low confidence for fallback
+    });
+    
+    return {
+      mapping: fallback,
+      confidence: fallbackConfidence
+    };
   }
 }
 

@@ -1,23 +1,22 @@
 import Image from 'next/image';
 import React from 'react'
-
-interface ImportResults {
-  totalContacts: number;
-  importedContacts: number;
-  mergedContacts: number;
-  errors: number;
-}
+import { DeduplicationResult } from '@/lib/deduplication';
 
 interface FinalCheckProps {
-  results?: ImportResults;
+  results?: DeduplicationResult;
 }
 
 export default function FinalCheck({ results }: FinalCheckProps) {
-  const defaultResults: ImportResults = {
-    totalContacts: 0,
-    importedContacts: 0,
-    mergedContacts: 0,
-    errors: 0
+  const defaultResults: DeduplicationResult = {
+    contacts: [],
+    duplicates: [],
+    skipped: [],
+    summary: {
+      total: 0,
+      created: 0,
+      merged: 0,
+      skipped: 0
+    }
   };
 
   const stats = results || defaultResults;
@@ -56,28 +55,28 @@ export default function FinalCheck({ results }: FinalCheckProps) {
             
             <p className="text-[#0E4259] text-[20px] md:text-[18px] text-center font-medium max-w-[470px] w-full" >
             
-              {stats.errors === 0 
+              {stats.summary.skipped === 0 
                 ? 'No Issue Founds! This Database entres are good to move to contacts section.'
-                : `${stats.errors} contacts had issues and were not imported.`
+                : `${stats.summary.skipped} contacts had issues and were not imported.`
               }
             </p>
           </div>
           <div className='flex gap-[12px] w-full md:w-[656px] bg-[#FFFFFF] border border-[#EEEEEE] rounded-[12px] py-[7px] px-[8px] mt-[24px] md:flex-row flex-col overflow-y-scroll'>
           <div className="bg-[#F2FFED]  rounded-[12px] py-[12px]  text-center text-[#008D0E] lg:max-w-[208px] w-full">
           <div className=" text-[14px] font-medium">Total Contacts Imported</div>
-          <div className=" text-[20px] font-bold">{stats.importedContacts}</div>
+          <div className=" text-[20px] font-bold">{stats.summary.created}</div>
           
         </div>
         
         <div className="bg-[#FFF7EA]  rounded-[12px] p-4 text-center text-[#B67C0C] lg:max-w-[208px] w-full">
         <div className="text-[14px] font-medium">Contacts Merged</div>
-          <div className="text-[20px] font-bold"> {stats.mergedContacts}</div>
+          <div className="text-[20px] font-bold"> {stats.summary.merged}</div>
           
         </div>
         
         <div className="bg-[#FFEDED]  rounded-[12px] p-4 text-center text-[#C4494B] py-[12px] lg:max-w-[208px] w-full">
         <div className=" text-[14px] font-medium">Errors</div>
-          <div className="text-[20px] font-bold">{stats.errors}</div>
+          <div className="text-[20px] font-bold">{stats.summary.skipped}</div>
          
         </div>
         

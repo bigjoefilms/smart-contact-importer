@@ -16,7 +16,7 @@ interface MappedContact {
 }
 
 interface Step1Props {
-  onMappingComplete?: (mappedContacts: MappedContact[], mapping: AIMappingResult) => void;
+  onMappingComplete?: (mappedContacts: MappedContact[], mapping: AIMappingResult, confidenceScores?: Record<string, { isEmail: boolean; isPhone: boolean; isDate: boolean; isNumber: boolean; confidence: number }>) => void;
 }
 
 export default function Step1({ onMappingComplete }: Step1Props) {
@@ -44,7 +44,8 @@ export default function Step1({ onMappingComplete }: Step1Props) {
       });
       
       // Get AI mapping suggestions
-      const mapping: AIMappingResult = await suggestMapping(parsedData.headers, sampleData);
+      const mappingResponse = await suggestMapping(parsedData.headers, sampleData);
+      const mapping = mappingResponse.mapping;
       console.log('AI mapping result:', mapping);
       
       // Transform data into mapped contacts
@@ -60,8 +61,14 @@ export default function Step1({ onMappingComplete }: Step1Props) {
             if (fieldName === 'custom') {
               // Handle custom fields
               contact[header] = value;
+            } else if (fieldName === 'createdOn') {
+              // Handle createdOn field specially - convert to Date
+              const dateValue = new Date(value);
+              if (!isNaN(dateValue.getTime())) {
+                contact[fieldName] = dateValue;
+              }
             } else if (CORE_FIELDS.includes(fieldName) || CUSTOM_FIELDS.includes(fieldName)) {
-              // Handle system fields
+              // Handle other system fields
               contact[fieldName] = value;
             }
           }
@@ -74,7 +81,7 @@ export default function Step1({ onMappingComplete }: Step1Props) {
       
       // Call the completion callback if provided
       if (onMappingComplete) {
-        onMappingComplete(mappedContacts, mapping);
+        onMappingComplete(mappedContacts, mapping, mappingResponse.confidence);
       }
       
       setDone(true);

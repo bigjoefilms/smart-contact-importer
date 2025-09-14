@@ -29,7 +29,6 @@ export const CUSTOM_FIELDS = [
   'company',
   'jobTitle',
   'dealValue',
-  'lastContactDate',
   'notes'
 ];
 
@@ -47,7 +46,6 @@ export const FIELD_TYPES = {
   company: 'text',
   jobTitle: 'text',
   dealValue: 'number',
-  lastContactDate: 'datetime',
   notes: 'text'
 };
 
@@ -63,7 +61,6 @@ export const FIELD_LABELS = {
   company: 'Company',
   jobTitle: 'Job Title',
   dealValue: 'Deal Value',
-  lastContactDate: 'Last Contact Date',
   notes: 'Notes'
 };
 

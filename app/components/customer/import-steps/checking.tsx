@@ -3,20 +3,14 @@ import React, { useState, useEffect } from 'react'
 import AnimatedProgressBar from '../../ui/animated-progress-bar';
 import { ParsedData } from '@/lib/xlsx-parser';
 import { AIMappingResult } from '@/lib/ai-mapping';
-import { deduplicateContacts } from '@/lib/deduplication';
+import { deduplicateContacts, DeduplicationResult } from '@/lib/deduplication';
 
 interface CheckingProps {
   parsedData?: ParsedData;
   aiMapping?: AIMappingResult;
-  onComplete?: (results: ImportResults) => void;
+  onComplete?: (results: DeduplicationResult) => void;
 }
 
-interface ImportResults {
-  totalContacts: number;
-  importedContacts: number;
-  mergedContacts: number;
-  errors: number;
-}
 
 export default function Checking({ parsedData, aiMapping, onComplete }: CheckingProps) {
   const [isProcessing, setIsProcessing] = useState(true);
@@ -38,6 +32,12 @@ export default function Checking({ parsedData, aiMapping, onComplete }: Checking
         setCurrentStatus('Validating contact information and checking for missing details...');
         await new Promise(resolve => setTimeout(resolve, 1000));
 
+        // Step 4: Fetch existing contacts from database
+        setCurrentStatus('Fetching existing contacts from database...');
+        const existingContactsResponse = await fetch('/api/contacts');
+        const existingContactsData = await existingContactsResponse.json();
+        const existingContacts = existingContactsData.contacts || [];
+
         // Perform actual duplicate detection
         // Convert parsed data to contact format for deduplication
         const contacts = parsedData.rows.map(row => {
@@ -50,29 +50,18 @@ export default function Checking({ parsedData, aiMapping, onComplete }: Checking
           return contact;
         });
 
-        // For now, assume no existing contacts (empty array)
-        const existingContacts: Record<string, string>[] = [];
+        // Perform deduplication with real existing contacts
         const dedupResult = deduplicateContacts(contacts, existingContacts);
-        
-        const totalContacts = parsedData.rows.length;
-        const importedContacts = dedupResult.summary.created;
-        const mergedContacts = dedupResult.summary.merged;
-        const errors = 0; // For now, assume no validation errors
 
-        // Step 4: Final processing
+        // Step 5: Final processing
         setCurrentStatus('Finalizing import results...');
         await new Promise(resolve => setTimeout(resolve, 500));
 
         setIsProcessing(false);
         
-        // Pass results to parent
+        // Pass deduplication results to parent
         if (onComplete) {
-          onComplete({
-            totalContacts,
-            importedContacts,
-            mergedContacts,
-            errors
-          });
+          onComplete(dedupResult);
         }
       };
 

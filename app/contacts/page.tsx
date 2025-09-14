@@ -53,7 +53,7 @@ export default function ContactsPage() {
   const getAgentName = (agentUid?: string) => {
     if (!agentUid) return "Unassigned";
     const user = users.find(u => u.uid === agentUid);
-    return user ? user.name : "Unknown User";
+    return user ? user.name : "Unassigned";
   };
 
   const filteredContacts = contacts.filter(contact => {
@@ -104,6 +104,7 @@ export default function ContactsPage() {
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return "N/A";
     const d = new Date(date);
+    if (isNaN(d.getTime())) return "N/A";
     return d.toLocaleDateString();
   };
 

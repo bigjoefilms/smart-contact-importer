@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/utilis/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 

@@ -11,6 +11,7 @@ import { AIMappingResult } from "@/lib/ai-mapping";
 import Checking from "./import-steps/checking";
 import FinalCheck from "./import-steps/final-check";
 import LoadingSpinner from "../ui/loading-spinner";
+import { DeduplicationResult } from "@/lib/deduplication";
 
 interface MappedContact {
   firstName?: string;
@@ -33,18 +34,15 @@ const CustomerImportModal: React.FC<CustomerImportModalProps> = () => {
   const [isFinalProcessing, setIsFinalProcessing] = useState(false);
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [aiMapping, setAiMapping] = useState<AIMappingResult | null>(null);
+  const [confidenceData, setConfidenceData] = useState<Record<string, { isEmail: boolean; isPhone: boolean; isDate: boolean; isNumber: boolean; confidence: number }> | null>(null);
   const [mappedContacts, setMappedContacts] = useState<MappedContact[]>([]);
-  const [importResults, setImportResults] = useState<{
-    totalContacts: number;
-    importedContacts: number;
-    mergedContacts: number;
-    errors: number;
-  } | null>(null);
+  const [deduplicationResults, setDeduplicationResults] = useState<DeduplicationResult | null>(null);
   const [isMovingToContacts, setIsMovingToContacts] = useState(false);
 
-  const handleMappingComplete = (contacts: MappedContact[], mapping: AIMappingResult) => {
+  const handleMappingComplete = (contacts: MappedContact[], mapping: AIMappingResult, confidenceScores?: Record<string, { isEmail: boolean; isPhone: boolean; isDate: boolean; isNumber: boolean; confidence: number }>) => {
     setMappedContacts(contacts);
     setAiMapping(mapping);
+    setConfidenceData(confidenceScores || null);
     
     // Convert mapped contacts back to ParsedData format for compatibility with existing steps
     if (contacts.length > 0) {
@@ -97,7 +95,7 @@ const CustomerImportModal: React.FC<CustomerImportModalProps> = () => {
     
     console.log('=== FINAL CONTACTS OUTPUT ===');
     console.log('Total contacts to be imported:', mappedContacts.length);
-    console.log('Import Results:', importResults);
+    console.log('Deduplication Results:', deduplicationResults);
     console.log('');
     
     // Log each contact in a structured format similar to seed.js
@@ -151,8 +149,10 @@ const CustomerImportModal: React.FC<CustomerImportModalProps> = () => {
       
       if (result.success) {
         console.log(`🎉 Successfully saved ${result.savedCount} out of ${result.totalCount} contacts to database!`);
-        alert(`Successfully imported ${result.savedCount} contacts to your contacts section!`);
+        // alert(`Successfully imported ${result.savedCount} contacts to your contacts section!`);
         handleClose();
+        // Redirect to contacts page after successful import
+        window.location.href = '/contacts';
       } else {
         console.error('❌ Failed to save contacts:', result.error);
         alert(`Failed to save contacts: ${result.error}`);
@@ -240,7 +240,7 @@ const CustomerImportModal: React.FC<CustomerImportModalProps> = () => {
 
             {currentStep === 3 && !isFinalProcessing && (
               <>
-                <Step3 parsedData={parsedData || undefined} aiMapping={aiMapping || undefined} />
+                <Step3 parsedData={parsedData || undefined} aiMapping={aiMapping || undefined} confidenceData={confidenceData || undefined} />
               </>
             )}
             {currentStep === 3 && isFinalProcessing && (
@@ -249,7 +249,7 @@ const CustomerImportModal: React.FC<CustomerImportModalProps> = () => {
                  parsedData={parsedData || undefined}
                  aiMapping={aiMapping || undefined}
                  onComplete={(results) => {
-                   setImportResults(results);
+                   setDeduplicationResults(results);
                    setIsFinalProcessing(false);
                    setCurrentStep(4);
                  }} 
@@ -259,7 +259,7 @@ const CustomerImportModal: React.FC<CustomerImportModalProps> = () => {
 
             {currentStep === 4 && (
               <>
-               <FinalCheck results={importResults || undefined}/>
+               <FinalCheck results={deduplicationResults || undefined}/>
               </>
             )}
 
