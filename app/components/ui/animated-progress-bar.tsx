@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 type AnimatedProgressBarProps = {
   autoStart?: boolean;
@@ -8,34 +8,55 @@ type AnimatedProgressBarProps = {
 
 export default function AnimatedProgressBar({ autoStart = true, durationMs = 3000, onComplete }: AnimatedProgressBarProps) {
   const [progress, setProgress] = useState(0);
-  const [, setIsAnimating] = useState<boolean>(false);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
+  const animationRef = useRef<number | undefined>(undefined);
+  const startTimeRef = useRef<number | undefined>(undefined);
+
+  // Easing function for smooth animation (ease-out)
+  const easeOutQuart = (t: number): number => {
+    return 1 - Math.pow(1 - t, 4);
+  };
 
   const startAnimation = useCallback(() => {
     setProgress(0);
     setIsAnimating(true);
     
-    // Animate progress from 0 to 100%
-    const duration = durationMs;
-    const steps = 60; // 60 steps for smooth animation
-    const increment = 100 / steps;
-    const stepTime = duration / steps;
-    
-    let currentProgress = 0;
-    const interval = setInterval(() => {
-      currentProgress += increment;
-      if (currentProgress >= 100) {
-        currentProgress = 100;
+    const animate = (currentTime: number) => {
+      if (!startTimeRef.current) {
+        startTimeRef.current = currentTime;
+      }
+      
+      const elapsed = currentTime - startTimeRef.current;
+      const rawProgress = Math.min(elapsed / durationMs, 1);
+      
+      // Apply easing function for smoother animation
+      const easedProgress = easeOutQuart(rawProgress);
+      const progressPercent = easedProgress * 100;
+      
+      setProgress(progressPercent);
+      
+      if (rawProgress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      } else {
         setIsAnimating(false);
-        clearInterval(interval);
+        startTimeRef.current = 0;
         if (onComplete) onComplete();
       }
-      setProgress(currentProgress);
-    }, stepTime);
+    };
+    
+    animationRef.current = requestAnimationFrame(animate);
   }, [durationMs, onComplete]);
 
   // Auto-start animation on component mount
   useEffect(() => {
     if (autoStart) startAnimation();
+    
+    // Cleanup animation on unmount
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
   }, [autoStart, startAnimation]);
 
   return (
@@ -46,10 +67,11 @@ export default function AnimatedProgressBar({ autoStart = true, durationMs = 300
         {/* Progress Bar Container */}
         <div className="w-full h-[8px] rounded-[100px] overflow-hidden bg-[#EEF4FF]" style={{ backgroundColor: '#EEF4FF' }}>
           <div 
-            className="h-full rounded-lg transition-all duration-100 ease-out"
+            className="h-full rounded-lg"
             style={{ 
               backgroundColor: '#5883C9',
-              width: `${progress}%`
+              width: `${progress}%`,
+              transition: 'none' // Disable CSS transitions for smooth JS animation
             }}
           />
         </div>

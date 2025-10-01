@@ -104,13 +104,13 @@ export default function Step1({ onMappingComplete }: Step1Props) {
       {!detecting && (
         <>
           <h2 className="text-[#0E4259] text-[18px] font-semibold">Import Spreadsheet</h2>
-          <p className="text-[#68818C] text-[16px]">Upload a .xlsx or .csv file to begin.</p>
+          <p className="text-[#68818C] text-[16px]">Upload a .xlsx, .xls, or .csv file to begin.</p>
           <div className="mt-[24px] h-[540px] flex items-center justify-center">
             <div className="flex items-center justify-center  flex-col gap-[16px] w-full max-w-[640px]">
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
+                accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"
                 onChange={handleFileChange}
                 className="hidden"
               />
@@ -132,7 +132,7 @@ export default function Step1({ onMappingComplete }: Step1Props) {
                 className="w-full cursor-pointer border-2 border-dashed border-[#0E4259] hover:border-[#0E4259] transition-colors rounded-[16px] bg-white p-[24px] flex flex-col items-center justify-center text-center gap-[12px]"
               >
                 <Image src="/file.svg" alt="file" width={40} height={40} className="opacity-60" />
-                <div className="text-[#0E4259] text-[16px] font-medium">Drag and drop your .xlsx or .csv file here</div>
+                <div className="text-[#0E4259] text-[16px] font-medium">Drag and drop your .xlsx, or .csv file here</div>
                 <div className="text-[#6B7280] text-[14px]">or</div>
                 <button
                   type="button"
@@ -142,7 +142,7 @@ export default function Step1({ onMappingComplete }: Step1Props) {
                 </button>
                 {fileName && <div className="text-[13px] text-[#596A72] mt-[4px]">Selected: {fileName}</div>}
               </div>
-              <div className="text-[12px] text-[#6B7280]">Only .xlsx and .csv files are supported</div>
+              <div className="text-[12px] text-[#6B7280]">Only .xlsx, and .csv files are supported</div>
             </div>
           </div>
         </>
