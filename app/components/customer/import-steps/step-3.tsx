@@ -72,6 +72,25 @@ export default function Step3({ parsedData, aiMapping, confidenceData }: Step3Pr
     return 'Optional';
   };
 
+  const formatDate = (value: string | number | Date): string => {
+    if (!value) return String(value);
+    
+    // Try to parse the date
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return String(value); // Return original if not a valid date
+    
+    // Format as dd/mm/yyyy
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+  };
+
+  const isDateField = (fieldName: string) => {
+    return fieldName === 'createdOn' || fieldName === 'date' || (fieldName && fieldName.toLowerCase().includes('date'));
+  };
+
   const shouldShowWarning = (header: string, mappedField: string) => {
     // Don't show warning for custom fields or skipped fields
     if (mappedField === 'custom' || mappedField === 'skip') {
@@ -149,10 +168,12 @@ export default function Step3({ parsedData, aiMapping, confidenceData }: Step3Pr
       </div>
       
       <div className="space-y-4 md:h-[483px] overflow-y-scroll md:pb-[50px] pb-[70px] ">
-        {Object.entries(currentMapping).map(([header, mappedField]) => {
-          const sampleValues = parsedData.rows?.slice(0, 3).map(row => row[header]).filter(Boolean) || [];
-          const isCore = isCoreField(mappedField);
-          const displayField = getFieldDisplayName(mappedField);
+        {parsedData?.headers && currentMapping ? (
+          parsedData.headers.map((header) => {
+            const mappedField = currentMapping[header];
+            const sampleValues = parsedData.rows?.slice(0, 3).map(row => row[header]).filter(Boolean) || [];
+            const isCore = isCoreField(mappedField);
+            const displayField = getFieldDisplayName(mappedField);
           
           return (
             <div key={header}>
@@ -170,17 +191,21 @@ export default function Step3({ parsedData, aiMapping, confidenceData }: Step3Pr
 
                   <div className="flex flex-col gap-[12px]">
                     <div className="text-[20px] flex items-center gap-[8px] font-medium">
-                    {/* <h1>{header}</h1> */}
-                    <h1>{displayField}</h1>
+                      <h1>{header}</h1>
+                      <span className="text-[#596A72] text-[16px]">→</span>
+                      <h1>{displayField}</h1>
                     </div>
 
                     <div className="text-[11px] md:text-[12px] text-[#596A72] flex items-center gap-[8px] cursor-pointer flex-wrap overflow-x-scroll w-[360px] ">
                       <div className="gap-[8px] flex md:items-center flex-wrap md:flex-row flex-col items-start ">
-                        {sampleValues.map((value, index) => (
-                          <span key={index} className="bg-[#F4F5F6] px-[8px] py-[4px] rounded-[4px] ">
-                            {value}
-                          </span>
-                        ))}
+                        {sampleValues.map((value, index) => {
+                          const displayValue = isDateField(mappedField) ? formatDate(value) : value;
+                          return (
+                            <span key={index} className="bg-[#F4F5F6] px-[8px] py-[4px] rounded-[4px] ">
+                              {displayValue}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -392,7 +417,6 @@ export default function Step3({ parsedData, aiMapping, confidenceData }: Step3Pr
                     </div>
                   )}
 
-                 
                 </div>
               </div>
               {editingField !== header && (
@@ -448,7 +472,12 @@ export default function Step3({ parsedData, aiMapping, confidenceData }: Step3Pr
             )}
             </div>
           );
-        })}
+        })
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-[#68818C] text-[16px]">No mapping data available</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -14,6 +14,25 @@ export default function Step2({ parsedData, aiMapping }: Step2Props) {
   // const coreFields = aiMapping ? Object.values(aiMapping).filter(field => CORE_FIELDS.includes(field)).length : 0; // Removed unused variable
   const customFields = aiMapping ? Object.values(aiMapping).filter(field => field === 'custom' || !CORE_FIELDS.includes(field)).length : 0;
   const highConfidenceFields = totalFields; // For now, assume all are high confidence
+
+  const formatDate = (value: string | number | Date): string => {
+    if (!value) return String(value);
+    
+    // Try to parse the date
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return String(value); // Return original if not a valid date
+    
+    // Format as dd/mm/yyyy
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+  };
+
+  const isDateField = (fieldName: string) => {
+    return fieldName === 'createdOn' || fieldName === 'date' || (fieldName && fieldName.toLowerCase().includes('date'));
+  };
   return (
     <div className="">
        <h2 className="text-[#0E4259] text-[18px] font-semibold ">
@@ -90,11 +109,14 @@ export default function Step2({ parsedData, aiMapping }: Step2Props) {
 
                             <div className="text-[11px] md:text-[13px] text-[#596A72] flex items-center gap-[8px]">
                               <div className="gap-[8px] flex flex-wrap items-center">
-                                {sampleValues.map((value, index) => (
-                                  <span key={index} className="bg-[#F4F5F6] px-[8px] py-[4px] rounded-[4px]">
-                                    {value}
-                                  </span>
-                                ))}
+                                {sampleValues.map((value, index) => {
+                                  const displayValue = isDateField(mappedField) ? formatDate(value) : value;
+                                  return (
+                                    <span key={index} className="bg-[#F4F5F6] px-[8px] py-[4px] rounded-[4px]">
+                                      {displayValue}
+                                    </span>
+                                  );
+                                })}
                               </div>
                             </div>
                           </div>
